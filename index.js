@@ -1,8 +1,10 @@
 const express = require('express');
+const helmet = require('helmet');
 const passport = require('passport');
 const boom = require('@hapi/boom');
 const cookieParser = require('cookie-parser');
 const axios = require('axios');
+const cors = require('cors');
 
 const THIRTY_DAYS_IN_SEC = 2592000000;
 const TWO_HOURS_IN_SEC = 7200000;
@@ -11,17 +13,18 @@ const { config } = require('./config');
 
 const app = express();
 
+app.use(cors());
+
 // body parser
 app.use(express.json());
 app.use(cookieParser());
+app.use(helmet());
 
 // Basic Strategy
 require('./utils/auth/strategies/basic');
 
 app.post('/auth/sign-in', async function (req, res, next) {
-
   const { rememberMe } = req.body;
-
   passport.authenticate('basic', function(error, data){
     try {
         if(error || !data){
@@ -41,7 +44,7 @@ app.post('/auth/sign-in', async function (req, res, next) {
                 maxAge: rememberMe ? THIRTY_DAYS_IN_SEC : TWO_HOURS_IN_SEC
             });
 
-            res.status(200).json(user);
+            res.status(200).json(data);
         });
 
     } catch (error) {
@@ -59,7 +62,7 @@ app.post('/auth/sign-up', async function (req, res, next) {
             data: user
         });
 
-        res.status(201).json({ messaje: 'user created' });
+        res.status(201).json({ message: 'user created' });
     }catch(error){
         next(error);
     }
