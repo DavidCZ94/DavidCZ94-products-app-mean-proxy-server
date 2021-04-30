@@ -20,6 +20,8 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(helmet());
 
+
+// Users
 // Basic Strategy
 require('./utils/auth/strategies/basic');
 
@@ -67,13 +69,122 @@ app.post('/auth/sign-up', async function (req, res, next) {
     }
 });
 
+
+// Users CRUD
+// Get Users
+app.get('/users', async function(req, res, next) {
+    try{
+        const token = req.headers.token;
+        let search = req.query.searchBy || '';
+        const { data, status } = await axios({
+            url: `${config.apiUrl}/api/users?searchBy=${search}`,
+            headers: { Authorization: `Bearer ${token}` },
+            method: 'get',
+            responseType: 'json'
+        });
+        if( status !==200 ){
+            return next(boom.unauthorized());
+        }
+        res.status(200).send(data);
+    }catch(error){
+        next(error);
+    }
+});
+
+// Get User by Id
+app.get('/users/:userId', async function(req, res, next) {
+    try {
+        const { userId } = req.params;
+        const token = req.headers.token;
+        const { data, status} = await axios({
+            url: `${config.apiUrl}/api/users/${userId}`,
+            headers: { Authorization: `Bearer ${token}` },
+            method: 'get',
+            responseType: 'json'
+        });
+        
+        if( status !== 200 ){
+            return next(boom.unauthorized());
+        }
+        res.status(200).send(data);
+    } catch (err) {
+        next(err);
+    }
+})
+
+// Create User
+app.post('/users', async function(req, res, next){
+    try {
+        const { body: user } = req;
+        const token = req.headers.token;
+        const { data, status } = await axios({
+            url: `${config.apiUrl}/api/users`,
+            headers: { Authorization: `Bearer ${token}`},
+            method: 'post',
+            data: user
+        });
+        if( status !== 201 ){
+            return next(boom.badImplementation());
+        }
+        res.status(201).json(data);
+    } catch (error) {
+        next(err);
+    }
+})
+
+// update User
+app.put('/users/:userId', async function( req, res, next){
+    try {
+        const token = req.headers.token;
+        const { body :user }= req;
+        const { userId } = req.params;
+        const { data, status } = new axios({
+            url: `${config.apiUrl}/api/users/${userId}`,
+            headers: { Authorization: `Bearer ${token}`},
+            method: 'put',
+            data: user
+        });
+        if( status ==! 200 ){
+            return next(boom.badImplementation());
+        }
+        res.status(200).json(data);
+    } catch (err) {
+        next(err);
+    }
+    
+});
+
+// delete User
+
+app.delete('/users/:userId', async function (req, res, next) {
+    try {
+        const { userId } = req.params;
+        const token = req.headers.token;
+        const { data, status } = await axios({
+            url: `${config.apiUrl}/api/users/${userId}`,
+            headers: { Authorization: `Bearer ${token}`},
+            method: 'delete',
+            data: userId
+        });
+        
+        if( status !== 200 ){
+            return next(boom.badImplementation());
+        }
+        res.status(201).json(data);
+
+    } catch (err) {
+        next(err);
+    }
+});
+
+// Products CRUD
+
 // get all products
 app.get('/products', async function(req, res, next){
     try{
         //const { token } = req.cookies;
         const token = req.headers.token;
         let search = req.query.searchBy || '';
-        console.log(search);
         const { data, status } = await axios({
             url: `${config.apiUrl}/api/products?searchBy=${search}`,
             headers: { Authorization: `Bearer ${token}`},
@@ -168,8 +279,6 @@ app.put('/products/:productId', async function (req, res, next){
             method: 'put',
             data: product
         });
-        console.log(data);
-        console.log(status);
         if( status ==! 200 ){
             return next(boom.badImplementation());
         }
@@ -178,6 +287,8 @@ app.put('/products/:productId', async function (req, res, next){
         next(error);
     }
 });
+
+
 
 app.listen(config.port, function () {
   console.log(`Listening http://localhost:${config.port}`);

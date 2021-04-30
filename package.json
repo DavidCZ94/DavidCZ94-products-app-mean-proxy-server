@@ -8,7 +8,7 @@
     "start": "set NODE_ENV=production && node index"
   },
   "keywords": [],
-  "author": "",
+  "author": "david940103@gmail.com",
   "license": "ISC",
   "devDependencies": {
     "nodemon": "^2.0.7"
