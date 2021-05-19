@@ -69,7 +69,7 @@ app.post('/auth/sign-up', async function (req, res, next) {
 
 //orders CRUD
 
-//  order
+//  Create order
 app.post('/orders', async function (req, res, next) {
   try {
     const { body: order } = req;
@@ -84,6 +84,66 @@ app.post('/orders', async function (req, res, next) {
         return next(boom.badImplementation());
     }
     res.status(201).json(data);
+  } catch (err) {
+    next(err);
+  }
+});
+// Get Orders
+app.get('/orders', async function (req, res, next){
+  try {
+    const token = req.headers.token;
+    let search = req.query.searchBy || '';
+    const { data, status } = await axios({
+      url: `${config.apiUrl}/api/orders?searchBy=${search}`,
+      headers: { Authorization: `Bearer ${token}` },
+      method: 'get',
+      responseType: 'json',
+    });
+    if(status !== 200){
+      return next(boom.unauthorized());
+    }
+    res.status(200).send(data);
+  } catch (err) {
+    next(err);
+  }
+});
+// Get Order By Id 
+app.get('/orders/:orderId', async function(req, res, next){
+  try {
+    const { orderId } = req.params;
+    const token = req.headers.token;
+    const { data, status } = await axios({
+      url: `${config.apiUrl}/api/orders/${orderId}`,
+      headers: { Authorization: `Bearer ${token}` },
+      method: 'get',
+      responseType: 'json',
+    });
+
+    if (status !== 200){
+      return next(boom.unauthorized);
+    }
+    res.status(200).send(data);
+
+  } catch (err) {
+    next(err);
+  }
+});
+// Update order
+app.put('/orders/:orderId', async function (req, res, next) {
+  try {
+    const token = req.headers.token;
+    const { body: order } = req;
+    const { orderId } = req.params;
+    const { data, status } = new axios({
+      url: `${config.apiUrl}/api/orders/${orderId}`,
+      headers: { Authorization: `Bearer ${token}` },
+      method: 'put',
+      data: order,
+    });
+    if(status == !200){
+      return next(boom.badImplementation());
+    }
+    res.status(200).send(data);
   } catch (err) {
     next(err);
   }
