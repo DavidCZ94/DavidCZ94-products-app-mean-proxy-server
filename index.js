@@ -134,13 +134,13 @@ app.put('/orders/:orderId', async function (req, res, next) {
     const token = req.headers.token;
     const { body: order } = req;
     const { orderId } = req.params;
-    const { data, status } = new axios({
+    const { data, status } = await axios({
       url: `${config.apiUrl}/api/orders/${orderId}`,
       headers: { Authorization: `Bearer ${token}` },
       method: 'put',
       data: order,
     });
-    if(status == !200){
+    if(status !== 200){
       return next(boom.badImplementation());
     }
     res.status(200).send(data);
@@ -217,13 +217,13 @@ app.put('/users/:userId', async function (req, res, next) {
     const token = req.headers.token;
     const { body: user } = req;
     const { userId } = req.params;
-    const { data, status } = new axios({
+    const { data, status } = await axios({
       url: `${config.apiUrl}/api/users/${userId}`,
       headers: { Authorization: `Bearer ${token}` },
       method: 'put',
       data: user,
     });
-    if (status == !200) {
+    if (status !== 200) {
       return next(boom.badImplementation());
     }
     res.status(200).json(data);
@@ -244,7 +244,6 @@ app.delete('/users/:userId', async function (req, res, next) {
       method: 'delete',
       data: userId,
     });
-
     if (status !== 200) {
       return next(boom.badImplementation());
     }
@@ -303,7 +302,6 @@ app.post('/products', async function (req, res, next) {
   try {
     const { body: product } = req;
     const token = req.headers.token;
-    //const { token } = req.cookies;
     const { data, status } = await axios({
       url: `${config.apiUrl}/api/products`,
       headers: { Authorization: `Bearer ${token}` },
@@ -322,22 +320,20 @@ app.post('/products', async function (req, res, next) {
 //delete product by id
 app.delete('/products/:productId', async function (req, res, next) {
   try {
-    //const { token } = req.cookies;
     const { productId } = req.params;
     const token = req.headers.token;
     const { data, status } = await axios({
-      url: `${config.apiUrl}/api/products/${productId}`,
-      headers: { Authorization: `Bearer ${token}` },
+      url: `${config.apiUrl}/api/products/${productId.toString()}`,
+      headers: { Authorization: `Bearer ${token.toString()}` },
       method: 'delete',
       data: productId,
     });
-
-    if (status !== 200) {
-      return next(boom.badImplementation());
+    if ( status !== 200 ){
+      this.boom.badImplementation();
     }
-    res.status(201).json(data);
-  } catch (error) {
-    next(error);
+    res.status(200).json(data);
+  } catch (err) {
+    next(err);
   }
 });
 
@@ -354,7 +350,7 @@ app.put('/products/:productId', async function (req, res, next) {
       method: 'put',
       data: product,
     });
-    if (status == !200) {
+    if (status !== 200) {
       return next(boom.badImplementation());
     }
     res.status(200).json(data);
