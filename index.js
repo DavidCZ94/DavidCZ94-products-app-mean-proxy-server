@@ -261,8 +261,10 @@ app.get('/products', async function (req, res, next) {
     //const { token } = req.cookies;
     const token = req.headers.token;
     let search = req.query.searchBy || '';
+    const pageNumber = req.query.pageNumber;
+    const nPerPage = req.query.nPerPage;
     const { data, status } = await axios({
-      url: `${config.apiUrl}/api/products?searchBy=${search}`,
+      url: `${config.apiUrl}/api/products?searchBy=${search}&pageNumber=${pageNumber}&nPerPage=${nPerPage}`,
       headers: { Authorization: `Bearer ${token}` },
       method: 'get',
       responseType: 'json',
