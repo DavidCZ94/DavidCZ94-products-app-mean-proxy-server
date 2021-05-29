@@ -93,8 +93,10 @@ app.get('/orders', async function (req, res, next){
   try {
     const token = req.headers.token;
     let search = req.query.searchBy || '';
+    const pageNumber = req.query.pageNumber;
+    const nPerPage = req.query.nPerPage;
     const { data, status } = await axios({
-      url: `${config.apiUrl}/api/orders?searchBy=${search}`,
+      url: `${config.apiUrl}/api/orders?searchBy=${search}&pageNumber=${pageNumber}&nPerPage=${nPerPage}`,
       headers: { Authorization: `Bearer ${token}` },
       method: 'get',
       responseType: 'json',
