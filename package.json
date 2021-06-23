@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "set DEBUG=express:* && nodemon index",
+    "dev": " set NODE_ENV=development && set DEBUG=express:* && nodemon index",
     "start": "set NODE_ENV=production && node index"
   },
   "keywords": [],
