@@ -26,7 +26,18 @@ require('./utils/auth/strategies/basic');
 
 app.post('/auth/sign-in', async function (req, res, next) {
   const { rememberMe } = req.body;
-  passport.authenticate('basic', function (error, data) {
+  
+  if (req.headers.authorization && req.headers.authorization.startsWith('Basic ')) {
+    const base64Credentials = req.headers.authorization.split(' ')[1];
+    const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+    const [username, password] = credentials.split(':');
+    console.log('Username:', username);
+    console.log('Password:', password);
+  } else {
+      res.status(401).send('Unauthorized');
+  }
+
+  passport.authenticate('basic', { session: false }, function (error, data) {
     try {
       if (error || !data) {
         next(boom.unauthorized());
